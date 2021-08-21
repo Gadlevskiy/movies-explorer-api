@@ -13,3 +13,5 @@ users.patch(
   }),
   updateUserInfo,
 );
+
+module.exports = users;
