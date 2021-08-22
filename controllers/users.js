@@ -4,6 +4,57 @@ const User = require('../models/user');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
+module.exports.createUser = (req, res, next) => {
+  const { email, password, name } = req.body;
+  bcrypt
+    .hash(password, 10)
+    .then((hashpassword) => User.create({
+      email,
+      password: hashpassword,
+      name,
+    }))
+    .then(({ _id }) => {
+      res.status(201).send({
+        _id,
+        email,
+        name,
+      });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        const error = new Error('Переданы некорректные данные при создании профиля');
+        error.statusCode = 400;
+        next(error);
+      } else if (err.name === 'MongoError' && err.code === 11000) {
+        const error = new Error('указан email, который уже существует на сервере');
+        error.statusCode = 409;
+        next(error);
+      } else {
+        next(err);
+      }
+    });
+};
+
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+      res
+        .cookie('jwt', token, {
+          maxAge: 3600000 * 24 * 7,
+          httpOnly: true,
+        }).send({ token: token })
+        .end();
+    })
+    .catch((err) => {
+      const error = new Error(err.message);
+      error.statusCode = 401;
+      next(error);
+    });
+};
+
 module.exports.getCurrentUserInfo = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
