@@ -27,7 +27,7 @@ movies.post(
         .pattern(
           /^(?:http(s)?:\/\/)?(w{3}\.)?[-a-zA-Z0-9._#]{1,}\.[-a-zA-Z0-9]{0,}\/?[a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]{0,}#?$/,
         ),
-      movieId: Joi.string().required(),
+      movieId: Joi.number().required(),
       nameRU: Joi.string().required(),
       nameEN: Joi.string().required(),
     }),
@@ -35,7 +35,7 @@ movies.post(
   createMovie,
 );
 movies.delete(
-  ':movieId',
+  '/:movieId',
   celebrate({
     params: Joi.object().keys({
       movieId: Joi.string().required().length(24).hex(),

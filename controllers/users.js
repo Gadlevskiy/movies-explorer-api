@@ -55,6 +55,25 @@ module.exports.login = (req, res, next) => {
     });
 };
 
+module.exports.logout = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+      res
+        .cookie('jwt', token, {
+          maxAge: 0,
+          httpOnly: true,
+        }).send({ token: token })
+        .end();
+    })
+    .catch((err) => {
+      const error = new Error(err.message);
+      error.statusCode = 401;
+      next(error);
+    });
+};
+
 module.exports.getCurrentUserInfo = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {

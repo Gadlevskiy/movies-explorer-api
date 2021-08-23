@@ -12,6 +12,7 @@ const movies = require('./routes/movies');
 const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
 const { centralErrorHandler } = require('./middlewares/errors');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
 
@@ -24,6 +25,7 @@ mongoose.connect('mongodb://localhost:27017/moviesdb', {
 
 app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
+app.use(requestLogger);
 app.use(
   cors({
     origin: 'https://new.imdb.nomoredomains.club',
@@ -72,7 +74,7 @@ app.use(
   users,
 );
 app.use(
-  '/cards',
+  '/movies',
   celebrate({
     headers: Joi.object()
       .keys({
@@ -86,7 +88,7 @@ app.use(
 app.use('/', (req, res) => {
   res.status(404).json({ message: 'Запрашиваемый ресурс не найден' });
 });
-
+app.use(errorLogger);
 app.use(errors());
 app.use(centralErrorHandler);
 

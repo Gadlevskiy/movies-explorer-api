@@ -1,6 +1,6 @@
 const users = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-const { getCurrentUserInfo, updateUserInfo } = require('../controllers/users');
+const { getCurrentUserInfo, updateUserInfo, logout } = require('../controllers/users');
 
 users.get('/me', getCurrentUserInfo);
 users.patch(
@@ -13,5 +13,6 @@ users.patch(
   }),
   updateUserInfo,
 );
+users.post('/singout', logout);
 
 module.exports = users;
