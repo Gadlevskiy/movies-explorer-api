@@ -54,7 +54,7 @@ app.post(
   '/signup',
   celebrate({
     body: Joi.object().keys({
-      name: Joi.string().min(3).max(30),
+      name: Joi.string().required().min(3).max(30),
       email: Joi.string().required().email(),
       password: Joi.string().required().min(8),
     }),
@@ -71,13 +71,13 @@ app.use(
   movies,
 );
 
-app.use('/', (req, res) => {
-  res.status(404).json({ message: 'Запрашиваемый ресурс не найден' });
+app.use('/', (req, res, next) => {
+  const error = new Error('Запрашиваемый ресурс не найден');
+  error.statusCode = 404;
+  next(error);
 });
 app.use(errorLogger);
 app.use(errors());
 app.use(centralErrorHandler);
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-});
+app.listen(PORT);
