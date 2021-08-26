@@ -84,30 +84,43 @@ module.exports.getCurrentUserInfo = (req, res, next) => {
 
 module.exports.updateUserInfo = (req, res, next) => {
   const { email, name } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { email, name },
-    {
-      new: true,
-      runValidators: true,
+  User.findOne({ email }).then(
+    (userData) => {
+      if (!userData) {
+        User.findByIdAndUpdate(
+          req.user._id,
+          { email, name },
+          {
+            new: true,
+            runValidators: true,
+          },
+        )
+          .then((user) => {
+            if (!user) {
+              const error = new Error('Пользователь с указанным _id не найден');
+              error.statusCode = 404;
+              throw error;
+            } else {
+              res.send(user);
+            }
+          })
+          .catch((err) => {
+            if (err.name === 'ValidationError' || 'CastError') {
+              const error = new Error('Переданы некорректные данные при обновлении профиля');
+              error.statusCode = 400;
+              next(error);
+            } else {
+              next(err);
+            }
+          });
+      } else {
+        const error = new Error('Email занят');
+        error.statusCode = 409;
+        next(error);
+      }
     },
   )
-    .then((user) => {
-      if (!user) {
-        const error = new Error('Пользователь с указанным _id не найден');
-        error.statusCode = 404;
-        throw error;
-      } else {
-        res.send(user);
-      }
-    })
     .catch((err) => {
-      if (err.name === 'ValidationError' || 'CastError') {
-        const error = new Error('Переданы некорректные данные при обновлении профиля');
-        error.statusCode = 400;
-        next(error);
-      } else {
-        next(err);
-      }
+      next(err);
     });
 };

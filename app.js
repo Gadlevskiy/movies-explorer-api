@@ -64,24 +64,10 @@ app.post(
 app.use(auth);
 app.use(
   '/users',
-  celebrate({
-    headers: Joi.object()
-      .keys({
-        authorization: Joi.string().required(),
-      })
-      .unknown(true),
-  }),
   users,
 );
 app.use(
   '/movies',
-  celebrate({
-    headers: Joi.object()
-      .keys({
-        authorization: Joi.string().required(),
-      })
-      .unknown(true),
-  }),
   movies,
 );
 
