@@ -1,8 +1,7 @@
 const Movie = require('../models/movie');
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.getMovies
-    .find({})
+  Movie.find({})
     .then((movies) => res.send(movies))
     .catch(next);
 };
