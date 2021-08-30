@@ -30,5 +30,9 @@ index.post(
 index.use(auth);
 index.use('/users', users);
 index.use('/movies', movies);
-
+index.use('/', (req, res, next) => {
+  const error = new Error('Запрашиваемый ресурс не найден');
+  error.statusCode = 404;
+  next(error);
+});
 module.exports = index;
