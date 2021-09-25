@@ -25,14 +25,14 @@ app.use(bodyParser.urlencoded({ extended: true })); // для приёма ве�
 app.use(requestLogger);
 app.use(
   cors({
-    origin: 'https://new.imdb.nomoredomains.club',
+    origin: 'https://api.new.imdb.nomoredomains.club',
     credentials: true,
   }),
 );
 app.options(
   '*',
   cors({
-    origin: 'https://new.imdb.nomoredomains.club',
+    origin: 'https://api.new.imdb.nomoredomains.club',
     credentials: true,
   }),
 );
