@@ -49,28 +49,28 @@ module.exports.createMovie = (req, res, next) => {
 };
 
 module.exports.deleteMovie = (req, res, next) => {
-  const currentUser = req.user._id;
-  Movie.findById(req.params.movieId, {
-    // если id не найден приходит в ответ пустой обьект (data: null), этот обьект не падает в catch
-    upsert: false,
-  })
-    .then((movie) => {
-      if (!movie) {
-        const error = new Error('Фильм с указанным id не найден');
-        error.statusCode = 404;
-        throw error; // проверяю на пустой обьект, и если null отправляю ошибку 404
-      } else if (movie.owner._id.toString() !== currentUser) {
-        const error = new Error('Фильм с указанным id не принадлежит вам');
-        error.statusCode = 403;
-        throw error;
-      } else {
-        Movie.findByIdAndRemove(req.params.movieId)
-          .then(() => {
-            res.send({ message: 'Пост удален' });
-          })
-          .catch(next);
-      }
+  // const currentUser = req.user._id;
+  // Movie.find({ movieId: req.params.movieId }, {
+  // если id не найден приходит в ответ пустой обьект (data: null), этот обьект не падает в catch
+  //   upsert: false,
+  // })
+  //   .then((movie) => {
+  //     if (!movie) {
+  //       const error = new Error('Фильм с указанным id не найден');
+  //       error.statusCode = 404;
+  //       throw error; // проверяю на пустой обьект, и если null отправляю ошибку 404
+  //     } else if (movie.owner._id.toString() !== currentUser) {
+  //       const error = new Error('Фильм с указанным id не принадлежит вам');
+  //       error.statusCode = 403;
+  //       throw error;
+  //     } else {
+  Movie.findOneAndRemove({ movieId: req.params.movieId })
+    .then(() => {
+      res.send({ message: 'Пост удален' });
     })
+    //       .catch(next);
+    //   }
+    // })
     .catch((err) => {
       if (err.name === 'CastError') {
         // CastError ошибка неправильной длины id
