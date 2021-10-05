@@ -13,6 +13,6 @@ users.patch(
   }),
   updateUserInfo,
 );
-users.post('/singout', logout);
+users.post('/signout', logout);
 
 module.exports = users;

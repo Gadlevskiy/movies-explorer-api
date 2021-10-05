@@ -2,7 +2,7 @@ const express = require('express');
 require('dotenv').config();
 const cookieParser = require('cookie-parser');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3100 } = process.env;
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
@@ -33,8 +33,8 @@ app.use(
 app.options(
   '*',
   cors({
-    origin: 'https://new.imdb.nomoredomains.club',
-    // origin: 'http://localhost:3000',
+    // origin: 'https://new.imdb.nomoredomains.club',
+    origin: 'http://localhost:3000',
     credentials: true,
   }),
 );

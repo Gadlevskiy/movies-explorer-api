@@ -1,7 +1,8 @@
 const Movie = require('../models/movie');
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({})
+  const currentUser = req.user._id;
+  Movie.find({ owner: currentUser })
     .then((movies) => res.send(movies))
     .catch(next);
 };
