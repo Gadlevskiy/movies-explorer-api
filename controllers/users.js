@@ -96,15 +96,17 @@ module.exports.updateUserInfo = (req, res, next) => {
           .then((user) => {
             if (!user) {
               const error = new Error('Пользователь с указанным _id не найден');
+              res.send({ message: 'Пользователь с указанным _id не найден' });
               error.statusCode = 404;
               throw error;
             } else {
-              res.send(user);
+              res.send({ user: user, message: 'Профиль обновлен' });
             }
           })
           .catch((err) => {
             if (err.name === 'ValidationError' || 'CastError') {
               const error = new Error('Переданы некорректные данные при обновлении профиля');
+              res.send({ message: 'Переданы некорректные данные при обновлении профиля' });
               error.statusCode = 400;
               next(error);
             } else {
@@ -126,15 +128,17 @@ module.exports.updateUserInfo = (req, res, next) => {
                 .then((user) => {
                   if (!user) {
                     const error = new Error('Пользователь с указанным _id не найден');
+                    res.send({ message: 'Пользователь с указанным _id не найден' });
                     error.statusCode = 404;
                     throw error;
                   } else {
-                    res.send(user);
+                    res.send({ user: user, message: 'Профиль обновлен' });
                   }
                 })
                 .catch((err) => {
                   if (err.name === 'ValidationError' || 'CastError') {
                     const error = new Error('Переданы некорректные данные при обновлении профиля');
+                    res.send({ message: 'Переданы некорректные данные при обновлении профиля' });
                     error.statusCode = 400;
                     next(error);
                   } else {
@@ -143,6 +147,7 @@ module.exports.updateUserInfo = (req, res, next) => {
                 });
             } else {
               const error = new Error('Email занят');
+              res.send({ message: 'Email занят' });
               error.statusCode = 409;
               next(error);
             }
