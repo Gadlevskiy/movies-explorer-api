@@ -39,13 +39,17 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        { expiresIn: '7d' },
+      );
       res
         .cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
-        }).send({ token: token })
+        })
+        .send({ token: token })
         .end();
     })
     .catch((err) => {
@@ -58,9 +62,7 @@ module.exports.login = (req, res, next) => {
 module.exports.logout = (req, res, next) => {
   User.findById(req.user._id)
     .then(() => {
-      res
-        .clearCookie('jwt').send({ message: 'cookie cleared' })
-        .end();
+      res.clearCookie('jwt').send({ message: 'cookie cleared' }).end();
     })
     .catch((err) => {
       const error = new Error(err.message);
@@ -79,11 +81,12 @@ module.exports.getCurrentUserInfo = (req, res, next) => {
 
 module.exports.updateUserInfo = (req, res, next) => {
   const { email, name } = req.body;
-  User.findOne({ email }).then(
-    (userData) => {
+  const currentUser = req.user._id;
+  User.findOne({ email })
+    .then((userData) => {
       if (!userData) {
         User.findByIdAndUpdate(
-          req.user._id,
+          currentUser,
           { email, name },
           {
             new: true,
@@ -109,12 +112,46 @@ module.exports.updateUserInfo = (req, res, next) => {
             }
           });
       } else {
-        const error = new Error('Email занят');
-        error.statusCode = 409;
-        next(error);
+        User.findById(currentUser)
+          .then((data) => {
+            if (data.email === email) {
+              User.findByIdAndUpdate(
+                currentUser,
+                { email, name },
+                {
+                  new: true,
+                  runValidators: true,
+                },
+              )
+                .then((user) => {
+                  if (!user) {
+                    const error = new Error('Пользователь с указанным _id не найден');
+                    error.statusCode = 404;
+                    throw error;
+                  } else {
+                    res.send(user);
+                  }
+                })
+                .catch((err) => {
+                  if (err.name === 'ValidationError' || 'CastError') {
+                    const error = new Error('Переданы некорректные данные при обновлении профиля');
+                    error.statusCode = 400;
+                    next(error);
+                  } else {
+                    next(err);
+                  }
+                });
+            } else {
+              const error = new Error('Email занят');
+              error.statusCode = 409;
+              next(error);
+            }
+          })
+          .catch((err) => {
+            next(err);
+          });
       }
-    },
-  )
+    })
     .catch((err) => {
       next(err);
     });

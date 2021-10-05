@@ -33,8 +33,8 @@ app.use(
 app.options(
   '*',
   cors({
-    // origin: 'https://new.imdb.nomoredomains.club',
-    origin: 'http://localhost:3000',
+    origin: 'https://new.imdb.nomoredomains.club',
+    // origin: 'http://localhost:3000',
     credentials: true,
   }),
 );

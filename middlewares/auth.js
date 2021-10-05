@@ -3,14 +3,12 @@ const jwt = require('jsonwebtoken');
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports = (req, res, next) => {
-  // const { authorization } = req.headers;
   const token = req.cookies.jwt;
   if (!token) {
     const error = new Error('Необходима авторизация');
     error.statusCode = 401;
     next(error);
   }
-  // const token = authorization.replace('Bearer ', '');
 
   let payload;
 
